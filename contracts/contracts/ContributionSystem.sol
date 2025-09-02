@@ -21,8 +21,6 @@ import "./Staking.sol";
  */
 contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
     
-
-    
     // Contribution types
     enum ContributionType {
         AI_TRAINING,
@@ -206,7 +204,7 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
      * @dev Review a contribution
      * @param contributionId ID of the contribution to review
      * @param criteria Review criteria scores
-     * @param comments Review comments
+     * @param comments Review comments (unused in current implementation)
      */
     function reviewContribution(
         uint256 contributionId,
@@ -250,6 +248,9 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
         if (contribution.reviewers.length >= MIN_REVIEWERS) {
             _processContribution(contributionId);
         }
+        
+        // Silence unused variable warning
+        bytes(comments);
     }
     
     /**
@@ -315,7 +316,7 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
         totalRewardsDistributed = totalRewardsDistributed + finalReward;
         
         // Transfer reward
-        daiToken.transfer(contribution.contributor, finalReward);
+        require(daiToken.transfer(contribution.contributor, finalReward), "Transfer failed");
     }
     
     /**
@@ -333,8 +334,12 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
         uint256 timeSinceLastContribution = block.timestamp - profile.lastContributionTime;
         uint256 decayFactor = timeSinceLastContribution / 30 days; // 1% decay per month
         
-        profile.reputationScore = (profile.reputationScore + reputationUpdate) - decayFactor;
-        if (profile.reputationScore < 0) profile.reputationScore = 0;
+        // Fix: Handle potential underflow by checking before subtraction
+        if (profile.reputationScore + reputationUpdate > decayFactor) {
+            profile.reputationScore = (profile.reputationScore + reputationUpdate) - decayFactor;
+        } else {
+            profile.reputationScore = 0;
+        }
         
         emit ReputationUpdated(contributor, profile.reputationScore);
     }
@@ -344,6 +349,7 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
      * @param reviewer Address of the reviewer
      */
     function addReviewer(address reviewer) external onlyOwner {
+        require(reviewer != address(0), "Contribution: Invalid reviewer address");
         require(!isReviewer[reviewer], "Contribution: Already a reviewer");
         
         isReviewer[reviewer] = true;
@@ -361,7 +367,11 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
         require(isReviewer[reviewer], "Contribution: Not a reviewer");
         
         isReviewer[reviewer] = false;
-        activeReviewers = activeReviewers - 1;
+        
+        // Only decrement if activeReviewers > 0 to prevent underflow
+        if (activeReviewers > 0) {
+            activeReviewers = activeReviewers - 1;
+        }
         
         // Remove from reviewers array
         for (uint256 i = 0; i < reviewers.length; i++) {
@@ -393,6 +403,7 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
         uint256 reviewTime,
         uint256 rewardAmount
     ) {
+        require(contributionId < totalContributions, "Contribution: Invalid ID");
         Contribution storage contribution = contributions[contributionId];
         return (
             contribution.id,
@@ -415,12 +426,13 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
      * @param contributor Address of the contributor
      */
     function getContributorProfile(address contributor) external view returns (
-        uint256 totalContributions,
-        uint256 totalRewards,
-        uint256 reputationScore,
-        uint256 lastContributionTime,
-        bool isActive
+        uint256 contributorTotalContributions,
+        uint256 contributorTotalRewards,
+        uint256 contributorReputationScore,
+        uint256 contributorLastContributionTime,
+        bool contributorIsActive
     ) {
+        require(contributor != address(0), "Contribution: Invalid contributor address");
         ContributorProfile storage profile = contributorProfiles[contributor];
         return (
             profile.totalContributions,
@@ -441,14 +453,14 @@ contract ContributionSystem is ReentrancyGuard, Ownable, Pausable {
     
     /**
      * @dev Get system statistics
-     * @return totalContributions Total number of contributions
-     * @return totalRewardsDistributed Total rewards distributed
-     * @return activeReviewers Number of active reviewers
+     * @return totalContributions_ Total number of contributions
+     * @return totalRewardsDistributed_ Total rewards distributed
+     * @return activeReviewers_ Number of active reviewers
      */
     function getSystemStats() external view returns (
-        uint256 totalContributions,
-        uint256 totalRewardsDistributed,
-        uint256 activeReviewers
+        uint256 totalContributions_,
+        uint256 totalRewardsDistributed_,
+        uint256 activeReviewers_
     ) {
         return (
             totalContributions,

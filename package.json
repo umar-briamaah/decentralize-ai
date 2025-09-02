@@ -1,0 +1,48 @@
+{
+  "name": "decentralize-ai-network",
+  "version": "1.0.0",
+  "description": "Decentralize AI Network - A fully decentralized AI system with privacy, governance, and merit-based economics",
+  "main": "scripts/start-node.sh",
+  "scripts": {
+    "start": "./scripts/start-node.sh",
+    "bootstrap": "./scripts/bootstrap.sh",
+    "deploy": "./scripts/deploy.sh",
+    "test": "node scripts/test-framework.js",
+    "compile-contracts": "cd contracts && npx hardhat compile",
+    "compile-circuits": "cd contracts/circuits && node compile_circuits.js",
+    "start-dao": "cd dao && npm start",
+    "start-nodes": "cd nodes && npm start",
+    "start-ai": "cd ai && source venv/bin/activate && python3 federated_learning.py"
+  },
+  "keywords": [
+    "decentralized",
+    "ai",
+    "blockchain",
+    "privacy",
+    "governance",
+    "federated-learning",
+    "zero-knowledge",
+    "proof-of-humanity"
+  ],
+  "author": "Decentralize AI Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/decentralize-ai/network"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "workspaces": [
+    "contracts",
+    "dao",
+    "nodes",
+    "ai"
+  ],
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "express": "^5.1.0",
+    "ws": "^8.18.3"
+  }
+}

@@ -1,4 +1,13 @@
 {
+  "name": "decentralize-ai-dao",
+  "version": "1.0.0",
+  "description": "Decentralize AI Network DAO Module",
+  "main": "src/dao-manager.js",
+  "scripts": {
+    "start": "node src/dao-manager.js",
+    "dev": "nodemon src/dao-manager.js",
+    "test": "jest"
+  },
   "dependencies": {
     "axios": "^1.11.0",
     "cors": "^2.8.5",

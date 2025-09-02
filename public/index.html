@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralize AI Network - The Future of AI is Here</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+        }
+
+        .connect-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .stat-item h3 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-item p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Dashboard Section */
+        .dashboard {
+            padding: 4rem 0;
+            background: #f8f9fa;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .dashboard-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #27ae60;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        /* Footer */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 3rem 0 2rem;
+            text-align: center;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .footer-section p, .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            line-height: 1.6;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-3px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <nav class="nav">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    Decentralize AI
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#governance">Governance</a></li>
+                    <li><a href="#docs">Docs</a></li>
+                </ul>
+                <button class="connect-btn" onclick="connectWallet()">
+                    <i class="fas fa-wallet"></i>
+                    Connect Wallet
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>The Future of AI is Decentralized</h1>
+            <p>Join the revolution of privacy-preserving AI training, constitutional governance, and merit-based economics. Experience the power of truly decentralized artificial intelligence.</p>
+            <div class="hero-buttons">
+                <a href="#dashboard" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i>
+                    Start Contributing
+                </a>
+                <a href="#features" class="btn btn-secondary">
+                    <i class="fas fa-play"></i>
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title">Revolutionary Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Privacy-Preserving AI</h3>
+                    <p>Train AI models without compromising data privacy using federated learning and homomorphic encryption.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-vote-yea"></i>
+                    </div>
+                    <h3>Constitutional Governance</h3>
+                    <p>Democratic decision-making with quadratic voting and constitutional compliance mechanisms.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <h3>Merit-Based Economics</h3>
+                    <p>Fair reward distribution based on contribution value and quality assessment.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye-slash"></i>
+                    </div>
+                    <h3>Zero-Knowledge Proofs</h3>
+                    <p>Anonymous contribution verification while maintaining transparency and accountability.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <h3>P2P Networking</h3>
+                    <p>Decentralized node communication with robust peer-to-peer infrastructure.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h3>Cross-Chain Compatibility</h3>
+                    <p>Multi-blockchain support for maximum interoperability and accessibility.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3 id="totalContributors">0</h3>
+                    <p>Active Contributors</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="totalRewards">0</h3>
+                    <p>DAI Rewards Distributed</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="activeProposals">0</h3>
+                    <p>Active Proposals</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="networkNodes">0</h3>
+                    <p>Network Nodes</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section class="dashboard" id="dashboard">
+        <div class="container">
+            <h2 class="section-title">Network Dashboard</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-cube"></i>
+                        Smart Contracts
+                        <span class="status-indicator"></span>
+                    </h3>
+                    <div class="metric">
+                        <span>DAI Token</span>
+                        <span class="metric-value" id="daiStatus">Deployed</span>
+                    </div>
+                    <div class="metric">
+                        <span>Governance</span>
+                        <span class="metric-value" id="governanceStatus">Active</span>
+                    </div>
+                    <div class="metric">
+                        <span>Staking</span>
+                        <span class="metric-value" id="stakingStatus">Ready</span>
+                    </div>
+                    <div class="metric">
+                        <span>Contribution System</span>
+                        <span class="metric-value" id="contributionStatus">Online</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-brain"></i>
+                        AI Module
+                        <span class="status-indicator"></span>
+                    </h3>
+                    <div class="metric">
+                        <span>Federated Learning</span>
+                        <span class="metric-value">Active</span>
+                    </div>
+                    <div class="metric">
+                        <span>Models Training</span>
+                        <span class="metric-value" id="modelsTraining">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>Privacy Score</span>
+                        <span class="metric-value">100%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Data Points</span>
+                        <span class="metric-value" id="dataPoints">0</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-vote-yea"></i>
+                        Governance
+                        <span class="status-indicator"></span>
+                    </h3>
+                    <div class="metric">
+                        <span>Active Proposals</span>
+                        <span class="metric-value" id="activeProposalsCount">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>Total Voters</span>
+                        <span class="metric-value" id="totalVoters">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>Quorum</span>
+                        <span class="metric-value">4%</span>
+                    </div>
+                    <div class="metric">
+                        <span>Voting Power</span>
+                        <span class="metric-value" id="votingPower">0 DAI</span>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h3>
+                        <i class="fas fa-network-wired"></i>
+                        Network
+                        <span class="status-indicator"></span>
+                    </h3>
+                    <div class="metric">
+                        <span>Connected Peers</span>
+                        <span class="metric-value" id="connectedPeers">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>Block Height</span>
+                        <span class="metric-value" id="blockHeight">0</span>
+                    </div>
+                    <div class="metric">
+                        <span>Network Health</span>
+                        <span class="metric-value">Excellent</span>
+                    </div>
+                    <div class="metric">
+                        <span>Uptime</span>
+                        <span class="metric-value" id="uptime">99.9%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Decentralize AI Network</h4>
+                    <p>The future of AI is decentralized. Join us in building a more private, fair, and transparent artificial intelligence ecosystem.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <p><a href="#features">Features</a></p>
+                    <p><a href="#dashboard">Dashboard</a></p>
+                    <p><a href="#governance">Governance</a></p>
+                    <p><a href="#docs">Documentation</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <p><a href="#">Discord</a></p>
+                    <p><a href="#">Twitter</a></p>
+                    <p><a href="#">GitHub</a></p>
+                    <p><a href="#">Telegram</a></p>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <p><a href="#">Whitepaper</a></p>
+                    <p><a href="#">API Docs</a></p>
+                    <p><a href="#">Smart Contracts</a></p>
+                    <p><a href="#">Support</a></p>
+                </div>
+            </div>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-github"></i></a>
+                <a href="#"><i class="fab fa-discord"></i></a>
+                <a href="#"><i class="fab fa-telegram"></i></a>
+            </div>
+            <p style="margin-top: 2rem; color: #999;">&copy; 2024 Decentralize AI Network. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // WebSocket connection for real-time updates
+        let ws;
+        let isConnected = false;
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:8080');
+            
+            ws.onopen = function() {
+                isConnected = true;
+                console.log('Connected to Decentralize AI Network');
+                updateConnectionStatus(true);
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                updateDashboard(data);
+            };
+            
+            ws.onclose = function() {
+                isConnected = false;
+                console.log('Disconnected from network');
+                updateConnectionStatus(false);
+                // Reconnect after 3 seconds
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+
+        function updateConnectionStatus(connected) {
+            const indicators = document.querySelectorAll('.status-indicator');
+            indicators.forEach(indicator => {
+                indicator.style.background = connected ? '#27ae60' : '#e74c3c';
+            });
+        }
+
+        function updateDashboard(data) {
+            // Update stats with real-time data
+            if (data.totalContributors) {
+                animateNumber('totalContributors', data.totalContributors);
+            }
+            if (data.totalRewards) {
+                animateNumber('totalRewards', data.totalRewards);
+            }
+            if (data.activeProposals) {
+                animateNumber('activeProposals', data.activeProposals);
+            }
+            if (data.networkNodes) {
+                animateNumber('networkNodes', data.networkNodes);
+            }
+        }
+
+        function animateNumber(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent) || 0;
+            const increment = (targetValue - currentValue) / 20;
+            let current = currentValue;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if ((increment > 0 && current >= targetValue) || (increment < 0 && current <= targetValue)) {
+                    current = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 50);
+        }
+
+        function connectWallet() {
+            const btn = document.querySelector('.connect-btn');
+            btn.innerHTML = '<div class="loading"></div> Connecting...';
+            
+            // Simulate wallet connection
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-check"></i> Connected';
+                btn.style.background = '#27ae60';
+                
+                // Update voting power
+                document.getElementById('votingPower').textContent = '1,000 DAI';
+                document.getElementById('totalVoters').textContent = '1';
+            }, 2000);
+        }
+
+        function loadDashboardData() {
+            // Load initial dashboard data
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Network status:', data);
+                })
+                .catch(error => {
+                    console.log('Using simulated data');
+                    // Simulate some initial data
+                    setTimeout(() => {
+                        animateNumber('totalContributors', 1247);
+                        animateNumber('totalRewards', 89234);
+                        animateNumber('activeProposals', 3);
+                        animateNumber('networkNodes', 156);
+                        animateNumber('modelsTraining', 12);
+                        animateNumber('dataPoints', 89456);
+                        animateNumber('activeProposalsCount', 3);
+                        animateNumber('connectedPeers', 23);
+                        animateNumber('blockHeight', 1847293);
+                    }, 1000);
+                });
+        }
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            connectWebSocket();
+            loadDashboardData();
+            
+            // Add some interactive effects
+            const cards = document.querySelectorAll('.feature-card, .dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-10px) scale(1.02)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+
+        // Send periodic updates to WebSocket
+        setInterval(() => {
+            if (isConnected) {
+                ws.send(JSON.stringify({
+                    type: 'ping',
+                    timestamp: new Date().toISOString()
+                }));
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

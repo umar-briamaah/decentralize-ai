@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/governance/extensions/GovernorCountingSimple.sol
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/governance/TimelockController.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./DAIToken.sol";
 
@@ -30,8 +31,6 @@ contract Governance is
     GovernorTimelockControl,
     Ownable
 {
-    
-
     
     // Constitutional requirements
     uint256 public constant CONSTITUTIONAL_AMENDMENT_THRESHOLD = 67; // 67% required
@@ -60,6 +59,8 @@ contract Governance is
     mapping(uint256 => ProposalMetadata) public proposalMetadata;
     mapping(address => bool) public constitutionalReviewers;
     mapping(address => uint256) public meritScores;
+    mapping(uint256 => uint256) public quadraticVotes; // Track quadratic votes for each proposal
+    uint256 public nextProposalId = 1; // Counter for proposal IDs
     
     // Events
     event ProposalCreated(
@@ -75,6 +76,7 @@ contract Governance is
     );
     event MeritScoreUpdated(address indexed account, uint256 newScore);
     event EmergencyModeActivated(uint256 indexed proposalId);
+    event QuadraticVoteCast(uint256 indexed proposalId, address indexed voter, uint256 votes);
     
     constructor(
         DAIToken _token,
@@ -125,6 +127,9 @@ contract Governance is
             deliberationStart: block.timestamp
         });
         
+        // Increment proposal counter
+        nextProposalId = nextProposalId + 1;
+        
         emit ProposalCreated(proposalId, category, msg.sender, description);
         
         return proposalId;
@@ -136,73 +141,53 @@ contract Governance is
      * @param support Support value (0=against, 1=for, 2=abstain)
      * @param votes Number of votes to cast (will be squared)
      */
-    function castVote(
+    function castVoteQuadratic(
         uint256 proposalId,
         uint8 support,
         uint256 votes
     ) public returns (uint256) {
         // Implement quadratic voting
-        uint256 quadraticVotes = votes * votes;
+        uint256 quadraticVoteCost = votes * votes;
         
         // Check if voter has sufficient voting power
         require(
-            getVotes(msg.sender, proposalSnapshot(proposalId)) >= quadraticVotes,
+            getVotes(msg.sender, proposalSnapshot(proposalId)) >= quadraticVoteCost,
             "Governance: Insufficient voting power"
         );
+        
+        // Store quadratic votes for tracking
+        quadraticVotes[proposalId] = quadraticVotes[proposalId] + quadraticVoteCost;
+        
+        emit QuadraticVoteCast(proposalId, msg.sender, votes);
         
         return super.castVote(proposalId, support);
     }
     
     /**
-     * @dev Cast a vote with reason
+     * @dev Cast a vote with reason and quadratic voting
      * @param proposalId ID of the proposal
      * @param support Support value
      * @param reason Reason for the vote
      * @param votes Number of votes to cast
      */
-    function castVoteWithReason(
+    function castVoteWithReasonQuadratic(
         uint256 proposalId,
         uint8 support,
         string calldata reason,
         uint256 votes
     ) public returns (uint256) {
-        uint256 quadraticVotes = votes * votes;
+        uint256 quadraticVotesCost = votes * votes;
         
         require(
-            getVotes(msg.sender, proposalSnapshot(proposalId)) >= quadraticVotes,
+            getVotes(msg.sender, proposalSnapshot(proposalId)) >= quadraticVotesCost,
             "Governance: Insufficient voting power"
         );
         
+        quadraticVotes[proposalId] = quadraticVotes[proposalId] + quadraticVotesCost;
+        
+        emit QuadraticVoteCast(proposalId, msg.sender, votes);
+        
         return super.castVoteWithReason(proposalId, support, reason);
-    }
-    
-    /**
-     * @dev Execute a proposal after it has been successful
-     * @param proposalId ID of the proposal to execute
-     */
-    function execute(
-        uint256 proposalId
-    ) public payable {
-        ProposalMetadata memory metadata = proposalMetadata[proposalId];
-        
-        // Check constitutional compliance for constitutional amendments
-        if (metadata.requiresConstitutionalReview) {
-            require(
-                _checkConstitutionalCompliance(proposalId),
-                "Governance: Constitutional compliance not verified"
-            );
-        }
-        
-        // Check deliberation period
-        require(
-            block.timestamp >= metadata.deliberationStart + DELIBERATION_PERIOD,
-            "Governance: Deliberation period not met"
-        );
-        
-        // Get proposal details and execute
-        (address[] memory targets, uint256[] memory values, bytes[] memory calldatas, bytes32 descriptionHash) = 
-            _getProposalDetails(proposalId);
-        super.execute(targets, values, calldatas, descriptionHash);
     }
     
     /**
@@ -244,6 +229,7 @@ contract Governance is
      * @param newScore New merit score
      */
     function updateMeritScore(address account, uint256 newScore) external onlyOwner {
+        require(account != address(0), "Governance: Invalid account address");
         meritScores[account] = newScore;
         emit MeritScoreUpdated(account, newScore);
     }
@@ -253,6 +239,7 @@ contract Governance is
      * @param reviewer Address to add as reviewer
      */
     function addConstitutionalReviewer(address reviewer) external onlyOwner {
+        require(reviewer != address(0), "Governance: Invalid reviewer address");
         constitutionalReviewers[reviewer] = true;
     }
     
@@ -274,6 +261,7 @@ contract Governance is
         bool compliant
     ) external {
         require(constitutionalReviewers[msg.sender], "Governance: Not a constitutional reviewer");
+        require(proposalId < _nextProposalId(), "Governance: Invalid proposal ID");
         
         emit ConstitutionalReview(proposalId, msg.sender, compliant);
     }
@@ -283,6 +271,7 @@ contract Governance is
      * @param proposalId ID of the proposal
      */
     function activateEmergencyMode(uint256 proposalId) external onlyOwner {
+        require(proposalId < _nextProposalId(), "Governance: Invalid proposal ID");
         ProposalMetadata storage metadata = proposalMetadata[proposalId];
         metadata.category = ProposalCategory.EMERGENCY;
         
@@ -294,6 +283,7 @@ contract Governance is
      * @param proposalId ID of the proposal
      */
     function getProposalMetadata(uint256 proposalId) external view returns (ProposalMetadata memory) {
+        require(proposalId < _nextProposalId(), "Governance: Invalid proposal ID");
         return proposalMetadata[proposalId];
     }
     
@@ -311,6 +301,35 @@ contract Governance is
      */
     function getMeritScore(address account) external view returns (uint256) {
         return meritScores[account];
+    }
+    
+    /**
+     * @dev Override execute to add constitutional checks
+     */
+    function execute(
+        address[] memory targets,
+        uint256[] memory values,
+        bytes[] memory calldatas,
+        bytes32 descriptionHash
+    ) public payable override(Governor) returns (uint256) {
+        uint256 proposalId = hashProposal(targets, values, calldatas, descriptionHash);
+        ProposalMetadata memory metadata = proposalMetadata[proposalId];
+        
+        // Check constitutional compliance for constitutional amendments
+        if (metadata.requiresConstitutionalReview) {
+            require(
+                _checkConstitutionalCompliance(proposalId),
+                "Governance: Constitutional compliance not verified"
+            );
+        }
+        
+        // Check deliberation period
+        require(
+            block.timestamp >= metadata.deliberationStart + DELIBERATION_PERIOD,
+            "Governance: Deliberation period not met"
+        );
+        
+        return super.execute(targets, values, calldatas, descriptionHash);
     }
     
     // Override required functions
@@ -338,8 +357,6 @@ contract Governance is
     ) public override(Governor) returns (uint256) {
         return propose(targets, values, calldatas, description, ProposalCategory.GENERAL, "");
     }
-    
-
     
     function _cancel(
         address[] memory targets,
@@ -388,19 +405,10 @@ contract Governance is
     }
     
     /**
-     * @dev Get proposal details for execution
+     * @dev Get the next proposal ID
+     * @return The next proposal ID
      */
-    function _getProposalDetails(uint256 proposalId) internal view returns (
-        address[] memory targets,
-        uint256[] memory values,
-        bytes[] memory calldatas,
-        bytes32 descriptionHash
-    ) {
-        // This is a simplified implementation
-        // In a real implementation, you would store and retrieve the actual proposal details
-        targets = new address[](0);
-        values = new uint256[](0);
-        calldatas = new bytes[](0);
-        descriptionHash = keccak256(abi.encodePacked("proposal", proposalId));
+    function _nextProposalId() internal view returns (uint256) {
+        return nextProposalId;
     }
 }

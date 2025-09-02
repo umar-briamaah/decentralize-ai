@@ -1,0 +1,11 @@
+{
+    "name": "decentralize-ai",
+    "chainId": 1337,
+    "rpcPort": 8545,
+    "p2pPort": 30303,
+    "apiPort": 8080,
+    "consensus": "proof-of-stake",
+    "blockTime": 15,
+    "maxValidators": 100,
+    "minStake": "10000000000000000000000"
+}

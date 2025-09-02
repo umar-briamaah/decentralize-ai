@@ -174,7 +174,7 @@ EOF
 install_contract_dependencies() {
     print_status "Installing smart contract dependencies..."
     
-    cd ../contracts
+    cd ./contracts
     
     # Install compatible latest versions with network resilience
     print_status "Installing Hardhat 2.x (compatible with toolbox)..."
@@ -204,7 +204,7 @@ install_contract_dependencies() {
     # Note: Chainlink contracts can be added later if needed
     print_status "Skipping Chainlink contracts (can be added later if needed)..."
     
-    cd ../scripts
+    cd ./scripts
     
     print_success "Smart contract dependencies installation completed"
 }
@@ -213,7 +213,7 @@ install_contract_dependencies() {
 install_node_dependencies() {
     print_status "Installing node dependencies..."
     
-    cd ../nodes
+    cd ./nodes
     
     # Install latest versions with modern alternatives and network resilience
     print_status "Installing latest Express..."
@@ -254,7 +254,7 @@ install_node_dependencies() {
     npm install @libp2p/tcp@latest --timeout=300000 --retry=3 || print_warning "LibP2P tcp installation failed, continuing..."
     npm install @libp2p/noise@latest --timeout=300000 --retry=3 || print_warning "LibP2P noise installation failed, continuing..."
     
-    cd ../scripts
+    cd ./scripts
     
     print_success "Node dependencies installation completed"
 }
@@ -263,7 +263,7 @@ install_node_dependencies() {
 install_ai_dependencies() {
     print_status "Installing AI dependencies..."
     
-    cd ../ai
+    cd ./ai
     
     # Create virtual environment
     python3 -m venv venv
@@ -296,7 +296,7 @@ install_ai_dependencies() {
     pip install --upgrade web3 eth-account --no-deps || print_warning "Blockchain installation failed, continuing..."
     
     deactivate
-    cd ../scripts
+    cd ./scripts
     
     print_success "AI dependencies installed with latest versions"
 }
@@ -305,7 +305,7 @@ install_ai_dependencies() {
 install_dao_dependencies() {
     print_status "Installing DAO dependencies..."
     
-    cd ../dao
+    cd ./dao
     
     # Install latest versions with modern alternatives and network resilience
     print_status "Installing latest Express..."
@@ -344,7 +344,7 @@ install_dao_dependencies() {
     print_status "Installing latest Morgan (logging)..."
     npm install morgan@latest --timeout=300000 --retry=3 || print_warning "Morgan installation failed, continuing..."
     
-    cd ../scripts
+    cd ./scripts
     
     print_success "DAO dependencies installation completed"
 }

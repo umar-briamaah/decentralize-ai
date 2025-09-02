@@ -20,8 +20,6 @@ import "./DAIToken.sol";
  */
 contract Staking is ReentrancyGuard, Ownable, Pausable {
     
-
-    
     // Staking types
     enum StakingType {
         VALIDATOR,
@@ -91,6 +89,7 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
     event PerformanceUpdated(address indexed user, uint256 newScore);
     
     constructor(address _daiToken) Ownable(msg.sender) {
+        require(_daiToken != address(0), "Staking: Invalid DAI token address");
         daiToken = DAIToken(_daiToken);
         
         // Initialize staking rewards for each type
@@ -118,9 +117,11 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         require(totalValidators < MAX_VALIDATORS, "Staking: Maximum validators reached");
         require(!stakingPositions[msg.sender].isActive, "Staking: Already staked");
         require(lockPeriod >= 30 days, "Staking: Lock period too short");
+        require(bytes(nodeId).length > 0, "Staking: Node ID required");
+        require(bytes(ipAddress).length > 0, "Staking: IP address required");
         
         // Transfer tokens from user to contract
-        daiToken.transferFrom(msg.sender, address(this), amount);
+        require(daiToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         
         // Create staking position
         stakingPositions[msg.sender] = StakingPosition({
@@ -171,7 +172,7 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         require(lockPeriod >= 7 days, "Staking: Lock period too short");
         
         // Transfer tokens from user to contract
-        daiToken.transferFrom(msg.sender, address(this), amount);
+        require(daiToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         
         // Create staking position
         stakingPositions[msg.sender] = StakingPosition({
@@ -213,7 +214,9 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         
         // Handle validator specific logic
         if (position.stakingType == StakingType.VALIDATOR) {
-            totalValidators = totalValidators - 1;
+            if (totalValidators > 0) {
+                totalValidators = totalValidators - 1;
+            }
             validatorInfo[msg.sender].isActive = false;
             _removeValidator(msg.sender);
         } else {
@@ -225,7 +228,7 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         position.rewardsEarned = position.rewardsEarned + rewards;
         
         // Transfer tokens back to user
-        daiToken.transfer(msg.sender, totalAmount);
+        require(daiToken.transfer(msg.sender, totalAmount), "Transfer failed");
         
         emit Unstaked(msg.sender, position.amount, rewards);
     }
@@ -248,7 +251,7 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         totalRewardsDistributed = totalRewardsDistributed + rewards;
         
         // Transfer rewards
-        daiToken.transfer(msg.sender, rewards);
+        require(daiToken.transfer(msg.sender, rewards), "Transfer failed");
         
         emit RewardsClaimed(msg.sender, rewards);
     }
@@ -271,7 +274,7 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         return baseReward + performanceBonus;
     }
     
-    /**l
+    /**
      * @dev Update validator performance
      * @param validator Address of the validator
      * @param uptime New uptime percentage
@@ -284,6 +287,10 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         uint256 totalBlocks,
         uint256 missedBlocks
     ) external onlyOwner {
+        require(validator != address(0), "Staking: Invalid validator address");
+        require(uptime <= 100, "Staking: Invalid uptime percentage");
+        require(missedBlocks <= totalBlocks, "Staking: Missed blocks cannot exceed total blocks");
+        
         ValidatorInfo storage info = validatorInfo[validator];
         require(info.isActive, "Staking: Validator not active");
         
@@ -295,7 +302,11 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         uint256 performanceScore = 100;
         if (totalBlocks > 0) {
             uint256 missedPercentage = (missedBlocks * 100) / totalBlocks;
-            performanceScore = performanceScore - missedPercentage;
+            if (missedPercentage <= 100) {
+                performanceScore = 100 - missedPercentage;
+            } else {
+                performanceScore = 0;
+            }
         }
         
         // Update staking position
@@ -315,6 +326,9 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         uint256 amount,
         string memory reason
     ) external onlyOwner {
+        require(validator != address(0), "Staking: Invalid validator address");
+        require(bytes(reason).length > 0, "Staking: Reason required");
+        
         StakingPosition storage position = stakingPositions[validator];
         require(position.isActive, "Staking: Validator not active");
         require(position.stakingType == StakingType.VALIDATOR, "Staking: Not a validator");
@@ -326,7 +340,13 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
         
         // Update position
         position.amount = position.amount - slashAmount;
-        position.performanceScore = position.performanceScore - 10; // Reduce performance score
+        
+        // Safely update performance score
+        if (position.performanceScore >= 10) {
+            position.performanceScore = position.performanceScore - 10;
+        } else {
+            position.performanceScore = 0;
+        }
         
         // Update state
         totalStaked = totalStaked - slashAmount;
@@ -343,7 +363,8 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
      * @param amount Amount to deposit
      */
     function depositToInsurancePool(uint256 amount) external onlyOwner {
-        daiToken.transferFrom(msg.sender, address(this), amount);
+        require(amount > 0, "Staking: Amount must be greater than 0");
+        require(daiToken.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         insurancePool = insurancePool + amount;
         emit InsurancePoolDeposited(amount);
     }
@@ -353,9 +374,10 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
      * @param amount Amount to withdraw
      */
     function withdrawFromInsurancePool(uint256 amount) external onlyOwner {
+        require(amount > 0, "Staking: Amount must be greater than 0");
         require(amount <= insurancePool, "Staking: Insufficient insurance pool");
         insurancePool = insurancePool - amount;
-        daiToken.transfer(msg.sender, amount);
+        require(daiToken.transfer(msg.sender, amount), "Transfer failed");
         emit InsurancePoolWithdrawn(amount);
     }
     
@@ -377,16 +399,16 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
     
     /**
      * @dev Get staking statistics
-     * @return totalStaked Total amount staked
-     * @return totalValidators Total number of validators
-     * @return totalRewardsDistributed Total rewards distributed
-     * @return insurancePool Insurance pool balance
+     * @return totalStaked_ Total amount staked
+     * @return totalValidators_ Total number of validators
+     * @return totalRewardsDistributed_ Total rewards distributed
+     * @return insurancePool_ Insurance pool balance
      */
     function getStakingStats() external view returns (
-        uint256 totalStaked,
-        uint256 totalValidators,
-        uint256 totalRewardsDistributed,
-        uint256 insurancePool
+        uint256 totalStaked_,
+        uint256 totalValidators_,
+        uint256 totalRewardsDistributed_,
+        uint256 insurancePool_
     ) {
         return (
             totalStaked,
@@ -398,9 +420,28 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
     
     /**
      * @dev Check if address has active staking position
+     * @param account Address to check
      */
     function hasActiveStaking(address account) external view returns (bool) {
         return stakingPositions[account].isActive;
+    }
+    
+    /**
+     * @dev Get validator info
+     * @param validator Address of the validator
+     */
+    function getValidatorInfo(address validator) external view returns (ValidatorInfo memory) {
+        require(validator != address(0), "Staking: Invalid validator address");
+        return validatorInfo[validator];
+    }
+    
+    /**
+     * @dev Get staking position
+     * @param account Address to check
+     */
+    function getStakingPosition(address account) external view returns (StakingPosition memory) {
+        require(account != address(0), "Staking: Invalid account address");
+        return stakingPositions[account];
     }
     
     /**
@@ -429,6 +470,25 @@ contract Staking is ReentrancyGuard, Ownable, Pausable {
                 break;
             }
         }
+    }
+    
+    /**
+     * @dev Emergency withdraw function for owner
+     * @param amount Amount to withdraw
+     */
+    function emergencyWithdraw(uint256 amount) external onlyOwner {
+        require(amount <= daiToken.balanceOf(address(this)), "Staking: Insufficient contract balance");
+        require(daiToken.transfer(msg.sender, amount), "Transfer failed");
+    }
+    
+    /**
+     * @dev Update staking rewards for a specific type
+     * @param stakingType Type of staking
+     * @param newRewardRate New reward rate (percentage)
+     */
+    function updateStakingRewards(StakingType stakingType, uint256 newRewardRate) external onlyOwner {
+        require(newRewardRate <= 50, "Staking: Reward rate too high"); // Max 50% APY
+        stakingRewards[stakingType] = newRewardRate;
     }
     
     /**

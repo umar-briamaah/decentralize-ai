@@ -44,7 +44,7 @@ class ZKCircuitCompiler {
         
         try {
             // Compile circuit to R1CS
-            execSync(`circom ${circuitFile} --r1cs --wasm --sym --c -o ${this.buildDir}`, {
+            execSync(`circom ${circuitFile} --r1cs --wasm --sym --c -o ${this.buildDir} -l ../node_modules`, {
                 stdio: 'inherit',
                 cwd: this.circuitsDir
             });
