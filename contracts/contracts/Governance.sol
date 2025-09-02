@@ -18,8 +18,6 @@ import "./DAIToken.sol";
  * Features:
  * - Quadratic voting to prevent whale dominance
  * - Constitutional compliance checking
- * - Merit-based voting power
- * - Emergency governance procedures
  * - Transparent proposal and voting system
  */
 contract Governance is 
