@@ -9,12 +9,14 @@ const express = require('express');
 const { ethers } = require('ethers');
 const WebSocket = require('ws');
 const DecentralizeAIEngine = require('./ai/ai_engine');
+const AdvancedAIEngine = require('./ai/advanced_ai_engine');
 
 class DecentralizeAIApp {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 3000;
         this.aiEngine = new DecentralizeAIEngine();
+        this.advancedAIEngine = new AdvancedAIEngine();
         this.setupMiddleware();
         this.setupRoutes();
         this.setupWebSocket();
@@ -240,9 +242,42 @@ class DecentralizeAIApp {
             }
         });
 
+        // Advanced AI Processing endpoint (Surpasses ChatGPT/Claude)
+        this.app.post('/api/ai/advanced', async (req, res) => {
+            try {
+                const { prompt, userId, context } = req.body;
+                
+                if (!prompt) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Prompt is required'
+                    });
+                }
+                
+                console.log(`🚀 Processing Advanced AI request: "${prompt}"`);
+                
+                const result = await this.advancedAIEngine.processAdvancedPrompt(prompt, context);
+                
+                res.json(result);
+            } catch (error) {
+                console.error('Advanced AI processing error:', error);
+                res.status(500).json({
+                    success: false,
+                    error: 'Internal server error',
+                    message: error.message
+                });
+            }
+        });
+
         // AI Status endpoint
         this.app.get('/api/ai/status', (req, res) => {
             const status = this.aiEngine.getStatus();
+            res.json(status);
+        });
+
+        // Advanced AI Status endpoint
+        this.app.get('/api/ai/advanced/status', (req, res) => {
+            const status = this.advancedAIEngine.getStatus();
             res.json(status);
         });
 
@@ -283,6 +318,27 @@ class DecentralizeAIApp {
                         } catch (error) {
                             ws.send(JSON.stringify({
                                 type: 'ai_error',
+                                error: error.message,
+                                timestamp: new Date().toISOString()
+                            }));
+                        }
+                    }
+                    
+                    // Handle Advanced AI prompts (Surpasses ChatGPT/Claude)
+                    if (data.type === 'advanced_ai_prompt') {
+                        console.log(`🚀 Processing Advanced AI prompt: "${data.message}"`);
+                        
+                        try {
+                            const result = await this.advancedAIEngine.processAdvancedPrompt(data.message, data.context);
+                            
+                            ws.send(JSON.stringify({
+                                type: 'advanced_ai_response',
+                                ...result,
+                                timestamp: new Date().toISOString()
+                            }));
+                        } catch (error) {
+                            ws.send(JSON.stringify({
+                                type: 'advanced_ai_error',
                                 error: error.message,
                                 timestamp: new Date().toISOString()
                             }));
