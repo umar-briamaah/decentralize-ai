@@ -8,11 +8,13 @@
 const express = require('express');
 const { ethers } = require('ethers');
 const WebSocket = require('ws');
+const DecentralizeAIEngine = require('./ai/ai_engine');
 
 class DecentralizeAIApp {
     constructor() {
         this.app = express();
         this.port = process.env.PORT || 3000;
+        this.aiEngine = new DecentralizeAIEngine();
         this.setupMiddleware();
         this.setupRoutes();
         this.setupWebSocket();
@@ -211,6 +213,44 @@ class DecentralizeAIApp {
             });
         });
 
+        // AI Processing endpoint
+        this.app.post('/api/ai/process', async (req, res) => {
+            try {
+                const { prompt, userId } = req.body;
+                
+                if (!prompt) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Prompt is required'
+                    });
+                }
+                
+                console.log(`🤖 Processing AI request: "${prompt}"`);
+                
+                const result = await this.aiEngine.processUserPrompt(prompt, userId);
+                
+                res.json(result);
+            } catch (error) {
+                console.error('AI processing error:', error);
+                res.status(500).json({
+                    success: false,
+                    error: 'Internal server error',
+                    message: error.message
+                });
+            }
+        });
+
+        // AI Status endpoint
+        this.app.get('/api/ai/status', (req, res) => {
+            const status = this.aiEngine.getStatus();
+            res.json(status);
+        });
+
+        // AI Chat interface
+        this.app.get('/ai-chat', (req, res) => {
+            res.sendFile(__dirname + '/public/ai-chat.html');
+        });
+
         // Main page - serve the beautiful HTML
         this.app.get('/', (req, res) => {
             res.sendFile(__dirname + '/public/index.html');
@@ -223,17 +263,38 @@ class DecentralizeAIApp {
         this.wss.on('connection', (ws) => {
             console.log('🔗 New WebSocket connection established');
             
-            ws.on('message', (message) => {
+            ws.on('message', async (message) => {
                 try {
                     const data = JSON.parse(message);
                     console.log('📨 Received message:', data);
                     
-                    // Echo back with timestamp
-                    ws.send(JSON.stringify({
-                        ...data,
-                        timestamp: new Date().toISOString(),
-                        response: 'Message received by Decentralize AI Network'
-                    }));
+                    // Handle AI prompts
+                    if (data.type === 'ai_prompt') {
+                        console.log(`🤖 Processing AI prompt: "${data.message}"`);
+                        
+                        try {
+                            const result = await this.aiEngine.processUserPrompt(data.message, data.userId);
+                            
+                            ws.send(JSON.stringify({
+                                type: 'ai_response',
+                                ...result,
+                                timestamp: new Date().toISOString()
+                            }));
+                        } catch (error) {
+                            ws.send(JSON.stringify({
+                                type: 'ai_error',
+                                error: error.message,
+                                timestamp: new Date().toISOString()
+                            }));
+                        }
+                    } else {
+                        // Echo back other messages with timestamp
+                        ws.send(JSON.stringify({
+                            ...data,
+                            timestamp: new Date().toISOString(),
+                            response: 'Message received by Decentralize AI Network'
+                        }));
+                    }
                 } catch (error) {
                     ws.send(JSON.stringify({
                         error: 'Invalid JSON message',
