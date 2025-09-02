@@ -1,0 +1,78 @@
+# Decentralize AI - Federated Learning System
+# Latest stable dependencies for distributed AI training and inference
+
+# Deep Learning Frameworks (Latest)
+torch
+torchvision
+torchaudio
+tensorflow
+transformers
+datasets
+
+# Federated Learning (Latest)
+flwr
+syft
+
+# Privacy and Security (Latest)
+cryptography
+pycryptodome
+
+# Distributed Computing (Latest)
+ray
+dask
+celery
+redis
+
+# Networking and Communication (Latest)
+aiohttp
+websockets
+grpcio
+grpcio-tools
+
+# Data Processing (Latest)
+numpy
+pandas
+scikit-learn
+opencv-python
+Pillow
+
+# Blockchain Integration (Latest)
+web3
+eth-account
+ipfshttpclient
+
+# Database and Storage (Latest)
+sqlalchemy
+alembic
+psycopg2-binary
+
+# Monitoring and Logging (Latest)
+wandb
+tensorboard
+mlflow
+prometheus-client
+
+# Utilities (Latest)
+pydantic
+click
+rich
+tqdm
+python-dotenv
+pyyaml
+requests
+
+# Testing (Latest)
+pytest
+pytest-asyncio
+pytest-cov
+black
+flake8
+mypy
+
+# Development (Latest)
+jupyter
+notebook
+ipykernel
+matplotlib
+seaborn
+plotly
